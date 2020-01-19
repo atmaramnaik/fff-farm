@@ -1,4 +1,4 @@
-FROM gradle:5.3-jdk-alpine as builder
+FROM gradle:5.3-jdk11-slim as builder
 
 # Copy local code to the container image.
 WORKDIR /app

@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.service.name }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ include "fff-product.name" . }}
+    helm.sh/chart: {{ include "fff-product.chart" . }}
+spec:
+  ports:
+    - name: http
+      protocol: {{ .Values.service.protocol | default "TCP" }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort | default "http" }}
+      nodePort: {{ .Values.service.nodePort }}
+  selector:
+    app.kubernetes.io/name: {{ include "fff-product.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: NodePort

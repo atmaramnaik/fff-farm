@@ -1,0 +1,29 @@
+pipeline {
+    agent {
+        label 'Kubernetes'
+    }
+    environment {
+        SERVICE_NAME = 'fff-product'
+        NAMESPACE = 'prod'
+    }
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: '', description: 'Docker image tag of iRIS service to be deployed')
+    }
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/master']],
+                          userRemoteConfigs: [[credentialsId: 'atmaram-github',
+                                               url: "https://github.com/atmaramnaik/$SERVICE_NAME"]]])
+            }
+        }
+        stage('Deploy Service to QA Environment') {
+            steps {
+                sh "helm upgrade --install --namespace $NAMESPACE \
+                    -f $WORKSPACE/helm/$SERVICE_NAME/values_prod.yaml $SERVICE_NAME-$NAMESPACE \
+                    $WORKSPACE/helm/$SERVICE_NAME --set image.tag=${params.IMAGE_TAG}"
+            }
+        }
+    }
+}

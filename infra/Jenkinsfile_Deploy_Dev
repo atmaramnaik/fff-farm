@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+        label 'Kubernetes'
+    }
+    environment {
+        SERVICE_NAME = 'fff-product'
+        NAMESPACE = 'dev'
+    }
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: '',
+                description: 'Docker image tag to deploy in Dev')
+    }
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/master']],
+                          userRemoteConfigs: [[credentialsId: 'atmaram-github',
+                                               url: "https://github.com/atmaramnaik/$SERVICE_NAME"]]])
+            }
+        }
+        stage('Deploy Service to Dev Environment') {
+            steps {
+
+
+
+
+                        sh "helm upgrade --install --namespace $NAMESPACE \
+                            -f $WORKSPACE/helm/$SERVICE_NAME/values_dev.yaml $SERVICE_NAME-$NAMESPACE \
+                            --set image.tag=${params.IMAGE_TAG} $WORKSPACE/helm/$SERVICE_NAME"
+                        sh "echo ${params.IMAGE_TAG} > artifacts.txt"
+
+
+            }
+        }
+    }
+    post {
+        success {
+            // Archive the file so that it can be used in other pipelines
+            archiveArtifacts artifacts: 'artifacts.txt'
+            // Trigger QA Deployment
+            build job: 'deploy-qa-fff-product', propagate: false, wait: false
+        }
+    }
+}

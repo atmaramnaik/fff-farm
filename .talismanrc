@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: infra/Jenkinsfile_Build
+  checksum: 4349fc07d697ca6b4072bd0f0172d88b0bb20f724d437e17ec0e26da8e98f91b
+  ignore_detectors: []

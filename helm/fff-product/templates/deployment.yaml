@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fff-product.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "fff-product.name" . }}
+    helm.sh/chart: {{ include "fff-product.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "fff-product.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "fff-product.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+
+    spec:
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort | default 80 }}
+              protocol: TCP
+          {{- if .Values.healthCheck }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.liveness | default "/" }}
+              port: http
+            initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds | default 120 }}
+            periodSeconds: {{ .Values.healthCheck.periodSeconds | default 120 }}
+            timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds | default 10 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.healthCheck.readiness | default "/" }}
+              port: http
+            initialDelaySeconds: {{ .Values.healthCheck.initialDelaySeconds | default 120 }}
+            periodSeconds: {{ .Values.healthCheck.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.healthCheck.timeoutSeconds | default 120 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

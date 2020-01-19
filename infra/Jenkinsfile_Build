@@ -1,0 +1,46 @@
+pipeline {
+    agent {
+        label 'Kubernetes'
+    }
+    environment {
+        SERVICE_NAME = 'fff-product'
+    }
+    stages {
+        stage('Checkout Repo') {
+            steps {
+                script{
+                    def scmVar = checkout([$class: 'GitSCM', \
+                    branches: [[name: '*/master']], \
+                    userRemoteConfigs: [[credentialsId: 'atmaram-github',
+                                         url: "https://github.com/atmaramnaik/$SERVICE_NAME"]]])
+
+                    sh 'git rev-parse HEAD > GIT_SHA'
+                    sh 'cat GIT_SHA'
+                    git_sha = readFile('GIT_SHA').trim()
+                    env.GIT_SHA = git_sha
+                    env.IMAGE_TAG = env.BUILD_NUMBER + '-' + git_sha.substring(0,7)
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'cd app && docker build -t atmaram/$SERVICE_NAME:$IMAGE_TAG .'
+            }
+        }
+        stage('Publish Docker Image') {
+                    steps {
+                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'atmaram-dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        	sh "docker login --password=${PASSWORD} --username=${USERNAME}"
+                        	sh 'docker push atmaram/$SERVICE_NAME:$IMAGE_TAG'
+                        }
+              }
+        }
+
+    }
+    post {
+        success {
+            build job: 'deploy-dev-fff-product', propagate: false, wait: false,
+                parameters: [[$class: 'StringParameterValue', name: 'IMAGE_TAG', value: "$IMAGE_TAG"]]
+        }
+    }
+}

@@ -1,0 +1,49 @@
+pipeline {
+    agent {
+        label 'Kubernetes'
+    }
+    environment {
+        SERVICE_NAME = 'fff-product'
+        NAMESPACE = 'qa'
+        DEV_DEPLOYMENT_PIPELINE_NAME = 'deploy-dev-fff-product'
+    }
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/master']],
+                          userRemoteConfigs: [[credentialsId: 'atmaram-github',
+                                               url: "https://github.com/atmaramnaik/$SERVICE_NAME"]]])
+            }
+        }
+        stage('Copy Artifacts') {
+            steps {
+                copyArtifacts projectName: env.DEV_DEPLOYMENT_PIPELINE_NAME,
+                        filter: 'artifacts.txt',
+                        selector: lastSuccessful()
+            }
+        }
+        stage('Get Image Tag from Copied Artifacts') {
+            steps {
+                script {
+                     IMAGE_TAG = sh(returnStdout: true, script: 'head -n 1 artifacts.txt')
+                     env.IMAGE_TAG = IMAGE_TAG.replaceAll("\\s","").trim()
+                }
+            }
+        }
+        stage('Deploy Service to QA Environment') {
+            steps {
+                sh "helm upgrade --install --namespace $NAMESPACE \
+                -f $WORKSPACE/helm/$SERVICE_NAME/values_qa.yaml $SERVICE_NAME-$NAMESPACE \
+                $WORKSPACE/helm/$SERVICE_NAME --set image.tag=$IMAGE_TAG"
+
+            }
+        }
+    }
+    post {
+            success {
+                build job: 'deploy-prod-fff-product', propagate: false, wait: false,
+                    parameters: [[$class: 'StringParameterValue', name: 'IMAGE_TAG', value: "$IMAGE_TAG"]]
+            }
+        }
+}

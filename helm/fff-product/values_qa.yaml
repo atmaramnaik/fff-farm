@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: atmaram/fff-product
+  tag: latest
+  pullPolicy: Always
+
+targetEnv:
+  name: QA
+
+service:
+  name: product
+  port: 8080
+  targetPort: 8080
+  nodePort: 30201
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

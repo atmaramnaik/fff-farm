@@ -24,6 +24,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
+                sh './gradlew clean build'
                 sh 'docker build -t atmaram/$SERVICE_NAME:$IMAGE_TAG .'
             }
         }

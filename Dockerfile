@@ -6,6 +6,7 @@ WORKDIR /app
 COPY build.gradle .
 COPY src ./src
 COPY settings.gradle .
+COPY gradle.properties .
 
 # Build a release artifact.
 RUN gradle clean build

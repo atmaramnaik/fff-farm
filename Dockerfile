@@ -1,9 +1,11 @@
 FROM gradle:5.3-jdk11-slim as builder
 
+USER root
 # Copy local code to the container image.
 WORKDIR /app
 COPY build.gradle .
 COPY src ./src
+COPY settings.gradle .
 
 # Build a release artifact.
 RUN gradle clean build

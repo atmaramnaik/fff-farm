@@ -9,7 +9,7 @@ COPY settings.gradle .
 COPY gradle.properties .
 
 # Build a release artifact.
-RUN gradle clean build
+RUN gradle clean build -x test
 
 FROM adoptopenjdk/openjdk11-openj9:jdk-11.0.1.13-alpine-slim
 COPY --from=builder /app/build/libs/fff-farm-*-all.jar fff-farm.jar

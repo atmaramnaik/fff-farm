@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: atmaram/fff-product
+  repository: atmaram/fff-farm
   tag: latest
   pullPolicy: Always
 
@@ -9,7 +9,7 @@ targetEnv:
   name: Devlopment
 
 service:
-  name: product
+  name: farm
   port: 8080
   targetPort: 8080
   nodePort: 30101

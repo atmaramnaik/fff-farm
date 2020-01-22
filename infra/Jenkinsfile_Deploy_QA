@@ -3,9 +3,9 @@ pipeline {
         label 'Kubernetes'
     }
     environment {
-        SERVICE_NAME = 'fff-product'
+        SERVICE_NAME = 'fff-farm'
         NAMESPACE = 'qa'
-        DEV_DEPLOYMENT_PIPELINE_NAME = 'deploy-dev-fff-product'
+        DEV_DEPLOYMENT_PIPELINE_NAME = 'deploy-dev-fff-farm'
     }
     stages {
         stage('Checkout SCM') {
@@ -42,7 +42,7 @@ pipeline {
     }
     post {
             success {
-                build job: 'deploy-prod-fff-product', propagate: false, wait: false,
+                build job: 'deploy-prod-fff-farm', propagate: false, wait: false,
                     parameters: [[$class: 'StringParameterValue', name: 'IMAGE_TAG', value: "$IMAGE_TAG"]]
             }
         }

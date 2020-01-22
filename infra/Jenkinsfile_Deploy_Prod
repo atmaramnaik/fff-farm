@@ -3,7 +3,7 @@ pipeline {
         label 'Kubernetes'
     }
     environment {
-        SERVICE_NAME = 'fff-product'
+        SERVICE_NAME = 'fff-farm'
         NAMESPACE = 'prod'
     }
     parameters {

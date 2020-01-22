@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "fff-product.fullname" . }}
+  name: {{ include "fff-farm.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "fff-product.name" . }}
-    helm.sh/chart: {{ include "fff-product.chart" . }}
+    app.kubernetes.io/name: {{ include "fff-farm.name" . }}
+    helm.sh/chart: {{ include "fff-farm.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "fff-product.name" . }}
+      app.kubernetes.io/name: {{ include "fff-farm.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "fff-product.name" . }}
+        app.kubernetes.io/name: {{ include "fff-farm.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
 
     spec:

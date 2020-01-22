@@ -12,6 +12,6 @@ COPY gradle.properties .
 RUN gradle clean build
 
 FROM adoptopenjdk/openjdk11-openj9:jdk-11.0.1.13-alpine-slim
-COPY --from=builder /app/build/libs/fff-product-*-all.jar fff-product.jar
+COPY --from=builder /app/build/libs/fff-farm-*-all.jar fff-farm.jar
 EXPOSE 8080
-CMD java -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar fff-product.jar
+CMD java -Dcom.sun.management.jmxremote -noverify ${JAVA_OPTS} -jar fff-farm.jar

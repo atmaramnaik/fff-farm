@@ -3,7 +3,7 @@ pipeline {
         label 'Kubernetes'
     }
     environment {
-        SERVICE_NAME = 'fff-product'
+        SERVICE_NAME = 'fff-farm'
         NAMESPACE = 'dev'
     }
     parameters {
@@ -39,7 +39,7 @@ pipeline {
             // Archive the file so that it can be used in other pipelines
             archiveArtifacts artifacts: 'artifacts.txt'
             // Trigger QA Deployment
-            build job: 'deploy-qa-fff-product', propagate: false, wait: false
+            build job: 'deploy-qa-fff-farm', propagate: false, wait: false
         }
     }
 }
